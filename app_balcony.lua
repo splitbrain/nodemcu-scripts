@@ -6,7 +6,7 @@
 local module = {}
 
 local PIN_LEVEL = 1 -- GPIO5
-
+local PIN_PUMP  = 2 -- GPIO4
 
 -- handle the low water level sensor
 --
@@ -44,6 +44,7 @@ function module.start_pump()
   print "pump requested"
   if(current_level_ok()) then
     print "PUMP STARTED"
+    gpio.write(PIN_PUMP, gpio.HIGH)
     G.mqtt.publish("sensor/pump", "1")
   end
 end
@@ -51,6 +52,7 @@ end
 -- stop the pump
 function module.stop_pump()
   print "PUMP STOPPED"
+  gpio.write(PIN_PUMP, gpio.LOW)
   G.mqtt.publish("sensor/pump", "0")
 end
 
@@ -61,7 +63,10 @@ local function setup()
 
   -- water level monitoring by interrupt
   gpio.mode(PIN_LEVEL, gpio.INT, gpio.PULLUP)
-  gpio.trig(PIN_LEVEL, "down", on_level_change);
+  gpio.trig(PIN_LEVEL, "down", on_level_change)
+
+  -- pump control via mosfet
+  gpio.mode(PIN_PUMP, gpio.OUTPUT)
 
   -- register for pump commands
   G.mqtt.subscribe("switch/pump", function(data)
@@ -71,6 +76,9 @@ local function setup()
       module.stop_pump()
     end
   end)
+
+  -- turn off the pump on startup
+  module.stop_pump()
 end
 
 -- run the application
