@@ -3,7 +3,7 @@
 --
 local module = {}
 
-local callback = nil -- the function run once the WiFi is up
+local callback = function() end -- the function run once the WiFi is up
 
 -- Wait for the WiFi
 --
