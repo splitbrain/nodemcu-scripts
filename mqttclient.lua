@@ -10,6 +10,7 @@ local m = nil -- the MQTT client
 local subscriptions = {}
 local connected = false
 
+local callback = function() end -- function to run after connect
 
 -- handle new connection
 local function on_connect(con)
@@ -19,6 +20,9 @@ local function on_connect(con)
   for topic, cb in pairs(subscriptions) do
      m:subscribe(topic, 2)
   end
+
+  -- custom handler
+  callback()
 
   print "MQTT connected"
 end
@@ -82,6 +86,11 @@ function module.subscribe(topic, callback)
   if(connected) then
     m:subscribe(G.config.MQTT.endpoint .. topic, 0)
   end
+end
+
+-- run the given function on connect
+function module.waitThen(cb)
+  callback = cb
 end
 
 -- start MQTT connection
