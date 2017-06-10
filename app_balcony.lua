@@ -13,11 +13,10 @@ local PIN_PUMP  = 2 -- GPIO4
 -- Sends water level info to the MQTT broker
 --
 -- @param {bool} level 1 for high water, 0 for low
--- @param {int} current timestamp
 --
-local function on_level_change(level, time)
+local function on_level_change(level)
   print("Low water sensor: " .. level)
-  G.mqtt.publish("sensor/waterlevel", level)
+  G.mqtt.publish("sensor/waterlevel", level, 1, 1)
 
   -- low water - disable the pump
   if(level == 0) then
@@ -32,7 +31,7 @@ end
 --
 -- @returns {int} 1 for high water, 0 for low
 --
-local function current_level_ok()
+local function get_current_level()
   return gpio.read(PIN_LEVEL)
 end
 
@@ -42,10 +41,10 @@ end
 --
 function module.start_pump()
   print "pump requested"
-  if(current_level_ok()) then
+  if(get_current_level() == 1) then
     print "PUMP STARTED"
     gpio.write(PIN_PUMP, gpio.HIGH)
-    G.mqtt.publish("sensor/pump", "1")
+    G.mqtt.publish("sensor/pump", "1", 1)
   end
 end
 
@@ -53,11 +52,17 @@ end
 function module.stop_pump()
   print "PUMP STOPPED"
   gpio.write(PIN_PUMP, gpio.LOW)
-  G.mqtt.publish("sensor/pump", "0")
+  G.mqtt.publish("sensor/pump", "0", 1)
 end
 
 -- configure everything
 local function setup()
+  -- publish current level after startup
+  G.mqtt.waitThen(function()
+    local level = get_current_level()
+    G.mqtt.publish("sensor/waterlevel", level, 1, 1)
+  end)
+
   -- start wifi and mqtt
   G.wifi.waitThen(G.mqtt.start)
 
