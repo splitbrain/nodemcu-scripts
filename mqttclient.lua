@@ -17,7 +17,7 @@ local function on_connect(con)
 
   -- (re)subscribe to to all topics
   for topic, cb in pairs(subscriptions) do
-     m:subscribe(topic, 0)
+     m:subscribe(topic, 2)
   end
 
   print "MQTT connected"
@@ -49,38 +49,17 @@ local function on_message(con, topic, data)
   end
 end
 
--- Connect to MQTT broker
-local function connect()
-    -- create client
-    m = mqtt.Client(
-        G.config.SELF,
-        120, -- keepalive
-        G.config.MQTT.user,
-        G.config.MQTT.pass,
-        1 -- clean session
-    )
-
-    -- register handlers
-    m:on("message", on_message);
-    m:on("offline", on_message);
-
-    -- Connect to broker
-    m:connect(
-        G.config.MQTT.host,
-        G.config.MQTT.port,
-        0, -- non-secure
-        0, -- no autoreconnect
-        on_connect,
-        on_error
-    )
-end
-
 -- send some data to the broker
 --
 -- @param string topic The (sub topic) to send the data to
 -- @param mixed payload The actual payload to send
+-- @param int qos optional quality of service
+-- @param int retain can optionally be set to 1 to let the broker keep the value
 --
-function module.publish(topic, payload)
+function module.publish(topic, payload, qos, retain)
+  qos = qos or 0
+  retain = retain or 0
+
   if(connected) then
     m:publish(G.config.MQTT.endpoint .. topic, payload, 0, 0)
     print("MQTT", topic, payload)
