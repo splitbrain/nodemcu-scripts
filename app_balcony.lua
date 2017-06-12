@@ -45,6 +45,8 @@ function module.start_pump()
     print "PUMP STARTED"
     gpio.write(PIN_PUMP, gpio.HIGH)
     G.mqtt.publish("sensor/pump", "1", 1)
+    -- safety: shut down after 45s
+    tmr.create():alarm(45 * 1000, tmr.ALARM_SINGLE, module.stop_pump)
   end
 end
 
