@@ -21,6 +21,11 @@ local function on_connect(con)
      m:subscribe(topic, 2)
   end
 
+  -- send Birth
+  m:publish(G.config.MQTT.endpoint .. 'status', 'online', 1, 1)
+  -- set LWT
+  m:lwt(G.config.MQTT.endpoint .. 'status', 'offline', 1, 1)
+
   -- custom handler
   callback()
 
