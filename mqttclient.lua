@@ -66,7 +66,7 @@ function module.publish(topic, payload, qos, retain)
   retain = retain or 0
 
   if(connected) then
-    m:publish(G.config.MQTT.endpoint .. topic, payload, 0, 0)
+    m:publish(G.config.MQTT.endpoint .. topic, payload, qos, retain)
     print("MQTT", topic, payload)
   else
     print("currently not connected to MQTT broker, cannot publish to " .. topic)
