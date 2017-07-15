@@ -30,9 +30,10 @@ end
 --
 function module.waitThen(cb)
   callback = cb
+
   wifi.setmode(wifi.STATION)
   wifi.sta.sethostname(G.config.SELF)
-  wifi.sta.config(G.config.WIFI.ssid, G.config.WIFI.pass)
+  wifi.sta.config(G.config.WIFI)
   tmr.alarm(1, 2500, tmr.ALARM_AUTO, checkWiFi)
 end
 

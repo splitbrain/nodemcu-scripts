@@ -18,7 +18,7 @@ end
 -- configure wifi
 module.WIFI = {}
 module.WIFI.ssid = "W00t"
-module.WIFI.pass = G.secrets.WIFIPASS
+module.WIFI.pwd = G.secrets.WIFIPASS
 
 -- configure MQTT
 module.MQTT = {}
