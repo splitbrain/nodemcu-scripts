@@ -36,8 +36,8 @@ end
 local function on_offline(client)
   connected = false
 
-  -- try to reconnect in 10 seconds FIXME DOESN'T WORK
-  -- tmr.create():alarm(10 * 1000, tmr.ALARM_SINGLE, module.start)
+  -- try to reconnect in 10 seconds
+  tmr.create():alarm(10 * 1000, tmr.ALARM_SINGLE, module.start)
 
   print "MQTT disconnected"
 end
@@ -105,7 +105,7 @@ function module.start()
     -- create client
     m = mqtt.Client(
         G.config.SELF,
-        120, -- keepalive
+        25, -- keepalive
         G.config.MQTT.user,
         G.config.MQTT.pass,
         1 -- clean session
@@ -116,7 +116,7 @@ function module.start()
         G.config.MQTT.host,
         G.config.MQTT.port,
         0, -- non-secure
-        1, -- autoreconnect NOT RECOMMENDED
+        0, -- autoreconnect NOT RECOMMENDED
         on_connect,
         on_error
     )
