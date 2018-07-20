@@ -23,9 +23,7 @@ local function on_connect(con)
 
   -- send Birth
   m:publish(G.config.MQTT.endpoint .. 'status', 'online', 1, 1)
-  -- set LWT
-  m:lwt(G.config.MQTT.endpoint .. 'status', 'offline', 1, 1)
-
+  
   -- custom handler
   callback()
 
@@ -110,6 +108,10 @@ function module.start()
         G.config.MQTT.pass,
         1 -- clean session
     )
+
+    -- set LWT
+    m:lwt(G.config.MQTT.endpoint .. 'status', 'offline', 1, 1)
+
 
     -- Connect to broker
     m:connect(
