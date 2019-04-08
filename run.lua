@@ -4,6 +4,7 @@
 --
 
 G = {}
+G.hlp = require("helper")
 G.secrets = require("secrets")
 G.config = require("config")
 G.wifi = require("wifisetup")

@@ -26,25 +26,6 @@ local BUFFER = {}
 -- STATELESS HELPER FUNCTIONS
 -- -------------------------------------------------------------------------
 
--- Helper to dump complex objects into a string
---
--- @param {object} o
--- @return {string}
-local function dump(o)
-    if type(o) == 'table' then
-        local s = '{ '
-        for k, v in pairs(o) do
-            if type(k) ~= 'number' then
-                k = '"' .. k .. '"'
-            end
-            s = s .. '[' .. k .. '] = ' .. dump(v) .. ','
-        end
-        return s .. "}\n"
-    else
-        return tostring(o)
-    end
-end
-
 -- Output a beep on a Piezo buzzer
 --
 -- @param {int} pin The GPIO the buzzer is connected to
@@ -205,7 +186,7 @@ local function toggleInput(field)
 
     beep(BUZZER_PIN, 880, 100)
 
-    print(dump(INPUT))
+    print(G.hlp.dump(INPUT))
 end
 
 -- Reset the playing area and begin a new game
@@ -285,10 +266,10 @@ function module.start()
 
     setup()
     reset()
-    print(dump(MATRIX))
+    print(G.hlp.dump(MATRIX))
 
     CODE = generateCode()
-    print(dump(CODE))
+    print(G.hlp.dump(CODE))
 
     INPUT = generateCode()
     toggleInput(1)
@@ -297,7 +278,7 @@ function module.start()
     toggleInput(4)
     submit()
 
-    print(dump(MATRIX))
+    print(G.hlp.dump(MATRIX))
 end
 
 return module
