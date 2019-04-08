@@ -1,0 +1,21 @@
+{
+  "name": "nodemcu-scripts",
+  "version": "1.0.0",
+  "description": "This is a simple framework to run on a NodeMCU controller. It takes care of configuring the WiFi and provides an easy way to subscribe and publish MQTT messages (handling all the possible errors by reconnecting).",
+  "scripts": {
+    "ls": "nodemcu-tool fsinfo"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/splitbrain/nodemcu-scripts.git"
+  },
+  "author": "Andreas Gohr <andi@splitbrain.org>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/splitbrain/nodemcu-scripts/issues"
+  },
+  "homepage": "https://github.com/splitbrain/nodemcu-scripts#readme",
+  "dependencies": {
+    "nodemcu-tool": "^3.0.2"
+  }
+}
