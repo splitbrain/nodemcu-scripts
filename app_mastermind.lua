@@ -106,16 +106,40 @@ end
 -- -------------------------------------------------------------------------
 
 -- Update the RGB Output based on the MATRIX and INPUT state
+--
+-- The RGB strip is arranged in a way where each row goes into a different
+-- direction than the one before:
+--
+-- +--4--3--2--1<--start
+-- |
+-- +->-5--6--7--8--9-10-11-12--+
+--                             |
+-- +--20-19-18-17-16-15-14-13<-+
+-- |
+-- +---->end
+--
 local function updateRGB()
     local pos = 1
 
-    for i = 1, #INPUT do
+    -- input row is reversed
+    for i = #INPUT, 1, -1 do
         BUFFER:set(pos, colorToRGB(INPUT[i]))
         pos = pos + 1
     end
 
     for i = 1, #MATRIX do
-        for j = 1, #INPUT * 2 do
+        local min = 1
+        local max = #INPUT * 2
+        local stp = 1
+
+        -- every second row is reversed
+        if (i % 2 == 0) then
+            min = #INPUT * 2
+            max = 1
+            stp = -1
+        end
+
+        for j = min, max, stp do
             BUFFER:set(pos, colorToRGB(MATRIX[i][j]))
             pos = pos + 1
         end
