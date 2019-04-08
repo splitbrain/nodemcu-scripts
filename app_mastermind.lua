@@ -3,6 +3,7 @@
 local module = {}
 
 local IN_PINS = { 5, 6, 7, 8 }
+local RESET_PIN = 1
 local SUBMIT_PIN = 2
 local BUZZER_PIN = 3
 
@@ -210,7 +211,7 @@ local function toggleInput(field)
 
     beep(BUZZER_PIN, 880, 100)
 
-    print(G.hlp.dump(INPUT))
+    print('Toggled ' .. field .. ' to ' .. COLORS[found])
 end
 
 -- Reset the playing area and begin a new game
@@ -236,35 +237,19 @@ local function setup()
         gpio.trig(
                 pin,
                 'up',
-                function(level, pulse, cnt)
-                    -- button debounce
-                    if (pulse - last < 250 or level == 0) then
-                        return
-                    end
-                    last = pulse
-
-                    print("click " .. level .. " pulse  " .. pulse .. " cnt " .. cnt)
+                G.hlp.debounce(function()
                     toggleInput(idx)
-                end
+                end)
         )
     end
 
     -- setup submit button
     gpio.mode(SUBMIT_PIN, gpio.INPUT, gpio.PULLUP)
-    gpio.trig(
-            SUBMIT_PIN,
-            'up',
-            function(level, pulse, cnt)
-                -- button debounce
-                if (pulse - last < 1000 or level == 0) then
-                    return
-                end
-                last = pulse
+    gpio.trig(SUBMIT_PIN, 'up', G.hlp.debounce(submit))
 
-                print("click " .. level .. " pulse  " .. pulse .. " cnt " .. cnt)
-                submit()
-            end
-    )
+    -- setup reset button
+    gpio.mode(RESET_PIN, gpio.INPUT, gpio.PULLUP)
+    gpio.trig(RESET_PIN, 'up', G.hlp.debounce(reset))
 
     -- make color names available
     for k, v in pairs(COLORCODES) do
