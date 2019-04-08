@@ -8,7 +8,7 @@ local module = {}
 -- identify NodeMCU by chipid
 local nodenames = {}
 nodenames[10702156] = "balcony"
-nodenames[944910] = "nodedev"
+nodenames[944910] = "mastermind"
 module.SELF = nodenames[node.chipid()]
 if module.SELF == nil then
   module.SELF = node.chipid()

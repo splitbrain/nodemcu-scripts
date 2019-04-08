@@ -1,8 +1,12 @@
-IN_PINS = { 5, 6, 7, 8 }
-SUBMIT_PIN = 2
-BUZZER_PIN = 3
+-- Implements the mastermind game with an RGB strip
 
-COLORCODES = {
+local module = {}
+
+local IN_PINS = { 5, 6, 7, 8 }
+local SUBMIT_PIN = 2
+local BUZZER_PIN = 3
+
+local COLORCODES = {
     blue = { 0, 0, 128 },
     green = { 0, 128, 0 },
     orange = { 128, 64, 0 },
@@ -10,14 +14,22 @@ COLORCODES = {
     red = { 128, 0, 0 },
     yellow = { 128, 128, 0 }
 }
-ROWS = 8
-COLORS = {}
-STEP = 0
-MATRIX = {}
-CODE = {}
-INPUT = {}
-BUFFER = {}
+local ROWS = 8
+local COLORS = {}
+local STEP = 0
+local MATRIX = {}
+local CODE = {}
+local INPUT = {}
+local BUFFER = {}
 
+-- -------------------------------------------------------------------------
+-- STATELESS HELPER FUNCTIONS
+-- -------------------------------------------------------------------------
+
+-- Helper to dump complex objects into a string
+--
+-- @param {object} o
+-- @return {string}
 local function dump(o)
     if type(o) == 'table' then
         local s = '{ '
@@ -33,7 +45,12 @@ local function dump(o)
     end
 end
 
-function beep(pin, freq, duration)
+-- Output a beep on a Piezo buzzer
+--
+-- @param {int} pin The GPIO the buzzer is connected to
+-- @param {int} freq The frequency to buzz in
+-- @param {int} duration How long to buzz in ms
+local function beep(pin, freq, duration)
     print("Frequency:" .. freq)
     pwm.setup(pin, freq, 512)
     pwm.start(pin)
@@ -45,6 +62,25 @@ function beep(pin, freq, duration)
     tmr.delay(20000)
 end
 
+-- Convert a color name to the RGB values
+-- @param {string} color
+-- @return {int}, {int}, {int}
+local function colorToRGB(color)
+    if COLORCODES[color] then
+        return unpack(COLORCODES[color])
+    elseif color == "exact" then
+        return 0, 153, 0
+    elseif color == "close" then
+        return 204, 102, 0
+    else
+        return 64, 64, 64
+    end
+
+end
+
+-- Generate a new random code
+--
+-- @return {table} list of colors
 local function generateCode()
     local t = { unpack(COLORS) }
 
@@ -60,6 +96,11 @@ local function generateCode()
     return { t[1], t[2], t[3], t[4] }
 end
 
+-- Compare the given input and code
+--
+-- @param {table} code The list of colors that are the right code
+-- @param {table} input The list of colors given by the user
+-- @param {int} {int} The number of exact and close guesses
 local function validateInput(code, input)
     local exact = 0
     local close = 0
@@ -79,7 +120,12 @@ local function validateInput(code, input)
     return exact, close
 end
 
-function updateRGB()
+-- -------------------------------------------------------------------------
+-- STATEFUL FUNCTIONS
+-- -------------------------------------------------------------------------
+
+-- Update the RGB Output based on the MATRIX and INPUT state
+local function updateRGB()
     local pos = 1
 
     for i = 1, #INPUT do
@@ -97,18 +143,7 @@ function updateRGB()
     ws2812.write(BUFFER)
 end
 
-local function reset()
-    for r = 1, ROWS do
-        MATRIX[r] = { '', '', '', '', '', '', '', '' }
-    end
-
-    STEP = 1
-    CODE = { '', '', '', '' }
-    INPUT = { '', '', '', '' }
-
-    updateRGB()
-end
-
+-- Submit the current INPUT for validation
 local function submit()
     local pos = 0
 
@@ -147,6 +182,9 @@ local function submit()
     end
 end
 
+-- Toggle the given INPUT field to the next color
+--
+-- @param {int} field The index of the INPUT field to toggle
 local function toggleInput(field)
     local found = 0
 
@@ -170,7 +208,21 @@ local function toggleInput(field)
     print(dump(INPUT))
 end
 
-local function setup(field)
+-- Reset the playing area and begin a new game
+local function reset()
+    for r = 1, ROWS do
+        MATRIX[r] = { '', '', '', '', '', '', '', '' }
+    end
+
+    STEP = 1
+    CODE = { '', '', '', '' }
+    INPUT = { '', '', '', '' }
+
+    updateRGB()
+end
+
+-- Initialize the mastermind module
+local function setup()
     local last = 0
 
     -- set up input buttons
@@ -223,32 +275,30 @@ local function setup(field)
     ws2812.write(BUFFER)
 end
 
-function colorToRGB(color)
-    if COLORCODES[color] then
-        return unpack(COLORCODES[color])
-    elseif color == "exact" then
-        return 0, 153, 0
-    elseif color == "close" then
-        return 204, 102, 0
-    else
-        return 64, 64, 64
-    end
+-- -------------------------------------------------------------------------
+-- MAIN
+-- -------------------------------------------------------------------------
 
+-- run the application
+function module.start()
+
+
+    setup()
+    reset()
+    print(dump(MATRIX))
+
+    CODE = generateCode()
+    print(dump(CODE))
+
+    INPUT = generateCode()
+    toggleInput(1)
+    toggleInput(2)
+    toggleInput(3)
+    toggleInput(4)
+    submit()
+
+    print(dump(MATRIX))
 end
 
-setup()
-reset()
-print(dump(MATRIX))
-
-CODE = generateCode()
-print(dump(CODE))
-
-INPUT = generateCode()
-toggleInput(1)
-toggleInput(2)
-toggleInput(3)
-toggleInput(4)
-submit()
-
-print(dump(MATRIX))
+return module
 
