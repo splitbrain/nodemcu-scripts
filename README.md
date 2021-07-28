@@ -1,10 +1,12 @@
 # NodeMCU Scripts
-> Scripts to power my nodemcu boards
+> Scripts to power my NodeMCU boards
 
-This is a simple framework to run on a NodeMCU controller. 
+This is a simple framework to run on a [NodeMCU](https://www.nodemcu.com/) controller.
 
-- Handle configuring the WiFi
-- An easy way to subscribe and publish MQTT messages (handling all the possible errors by reconnecting).
+It provides an easy way to:
+
+- Configure the WiFi.
+- Subscribe and publish MQTT messages, handling all the possible errors by reconnecting.
 
 I will probably run multiple NodeMCUs in the future. To make it easier, they
 will all receive the same Lua files, but each one will run a specific `app_*.lua`
@@ -19,7 +21,7 @@ See the [secrets.lua.dist](/secrets.lua.dist) file for a template.
 
 The wifi setup has a `g.wifi.waitThen()` method accepting a callback that will
 be run only after an IP address has been assigned. You will probably want to wait
-fo that befor starting the MQTT client.
+for that before starting the MQTT client.
 
 See [app_balcony.lua](/app_balcony.lua) for an example application. It allows the control of a water
-pump via MQTT. However the pump will not run when the water level is too low.
+pump via MQTT. However, the pump will not run when the water level is too low.
