@@ -1,3 +1,5 @@
+# NodeMCU Scripts
+> Scripts to power my nodemcu boards
 
 This is a simple framework to run on a NodeMCU controller. It takes care of
 configuring the WiFi and provides an easy way to subscribe and publish MQTT
